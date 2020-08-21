@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/hibernate-mapping-3.0.dtd">
+
+<!-- table 對應檔，設定table 名稱及欄位設定。 -->
+<hibernate-mapping>
+    <class name="idv.module.entity.Product" table="product" catalog="master">
+        <!-- product裡面，id對應到model的id屬性 -->
+        <id name="id" type="java.lang.Integer">
+            <column name="id"/>
+            <!-- 主鍵產生方式，native表示依循資料庫設定 -->
+            <generator class="native"/>
+        </id>
+        <property name="enName" type="string">
+            <!-- 資料型態是字串，長度60，不能是null，唯一值 -->
+            <column name="en_name" length="60" not-null="true" unique="true"/>
+        </property>
+        <!-- 可以都不配置，會以model為主 -->
+        <property name="zhName" column="zh_name"/>
+        <property name="price" column="price"/>
+        <property name="releaseDate" column="release_date"/>
+        <property name="editDate" column="edit_date"/>
+    </class>
+</hibernate-mapping>

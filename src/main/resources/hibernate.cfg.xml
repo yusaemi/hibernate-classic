@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<!-- Database config，相關hibernate主要設定，連線資訊等。 -->
+<hibernate-configuration>
+    <session-factory>
+        <!--使用Database相關設定 -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <!--連線資料 (url)、帳號(username)及密碼(password) -->
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/master?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=GMT%2B8</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">LocalPwd3306</property>
+        <!-- hibernate其他設定 -->
+        <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
+        <property name="connection_pool_size">1</property>
+
+        <!--
+        validate: 程式執行驗證資料對應表相關資料。
+        update: 如果table存在則更新，不存在則新增
+        create: 每次執行就自動刪除所有對應的table，再新增所有對應的table
+        create-drop: 新增所有對應的table，程式關閉前刪除所有對應的table
+        沒有需要配置就設定為none
+        -->
+        <property name="hbm2ddl.auto">none</property>
+        <!-- 是否顯示執行的sql -->
+        <property name="show_sql">true</property>
+        <!-- 對應Table設定 -->
+        <mapping resource="product.hbm.xml"></mapping>
+    </session-factory>
+</hibernate-configuration>
