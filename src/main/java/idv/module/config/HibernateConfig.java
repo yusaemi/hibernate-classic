@@ -13,7 +13,7 @@ import org.hibernate.cfg.Configuration;
 // Hibernate 建立資料庫連線
 public class HibernateConfig {
 
-    private static final SessionFactory sessionFactory = buildSessionFactory();
+    private static final SessionFactory SESSION_FACTORY = buildSessionFactory();
 
     private static SessionFactory buildSessionFactory() {
         try {
@@ -27,7 +27,7 @@ public class HibernateConfig {
     }
 
     public static SessionFactory getSessionFactory() {
-        return sessionFactory;
+        return SESSION_FACTORY;
     }
 
     public static void shutdown() {

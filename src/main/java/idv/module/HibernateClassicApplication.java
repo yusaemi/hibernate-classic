@@ -63,13 +63,13 @@ public class HibernateClassicApplication {
 
         /* update */
         System.err.println("==============update Test Product==============");
-        System.out.printf("(Before insertProduct) ZhName: %s, Price: %f, EditDate: %s\n", insertProduct.getZhName(), insertProduct.getPrice(), (insertProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate())));
+        System.out.printf("(Before insertProduct) ZhName: %s, Price: %f, EditDate: %s\n", insertProduct.getZhName(), insertProduct.getPrice(), insertProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate()));
         insertProduct.setPrice(4990.72);
         insertProduct.setZhName("測試商品更新");
         insertProduct.setEditDate(Timestamp.valueOf(LocalDateTime.now()));
         session.update(insertProduct);
         Product updateProduct = session.get(Product.class, insertProduct.getId());
-        System.out.printf("(After insertProduct) ZhName: %s, Price: %f, EditDate: %s\n", updateProduct.getZhName(), updateProduct.getPrice(), (updateProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate())));
+        System.out.printf("(After insertProduct) ZhName: %s, Price: %f, EditDate: %s\n", updateProduct.getZhName(), updateProduct.getPrice(), updateProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate()));
         Thread.sleep(50);
 
         /*
