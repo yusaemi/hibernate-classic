@@ -12,6 +12,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * * Application. 2020/3/22 6:07 下午
@@ -22,76 +24,79 @@ import java.util.concurrent.ThreadLocalRandom;
  **/
 public class HibernateClassicApplication {
 
+    private static final Logger LOGGER = Logger.getAnonymousLogger();
+
     public static void main(String[] args) throws InterruptedException {
 
         // 建立sessionFactory
-        Session session = HibernateConfig.getSessionFactory().openSession();
-        // 開啟一個事物
-        Transaction transaction = session.beginTransaction();
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+            // 開啟一個事物
+            Transaction transaction = session.beginTransaction();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        /* get all Product */
-        System.err.println("==============get all Product==============");
-        Query selectAllQuery = session.createQuery("from Product");
-        List<Product> products = selectAllQuery.list();
-        for (Product p : products) {
-            System.out.printf("(SelectProduct) Id: %d, EnName: %s, ZhName: %s, Price: %f, ReleaseDate: %s\n", p.getId(), p.getEnName(), p.getZhName(), p.getPrice(), sdf.format(p.getReleaseDate()));
+            /* get all Product */
+            LOGGER.info("==============get all Product==============");
+            Query<Product> selectAllQuery = session.createNativeQuery("select * from product", Product.class);
+            List<Product> products = selectAllQuery.list();
+            for (Product p : products) {
+                LOGGER.log(Level.INFO, "(SelectProduct) Id: {0}, EnName: {1}, ZhName: {2}, Price: {3}, ReleaseDate: {4}", new Object[]{p.getId(), p.getEnName(), p.getZhName(), p.getPrice(), sdf.format(p.getReleaseDate())});
+            }
+            Thread.sleep(50);
+
+            /* select random Product */
+            int productId = ThreadLocalRandom.current().nextInt(1, products.size() + 1);
+            LOGGER.log(Level.INFO, "==============select {0} Product==============", productId);
+            Product selectProduct = session.get(Product.class, productId);
+            LOGGER.log(Level.INFO, "(SelectProduct) Id: {0}, EnName: {1}, ZhName: {2}, Price: {3}, ReleaseDate: {4}", new Object[]{selectProduct.getId(), selectProduct.getEnName(), selectProduct.getZhName(), selectProduct.getPrice(), sdf.format(selectProduct.getReleaseDate())});
+            Thread.sleep(50);
+
+            /* insert */
+            LOGGER.info("==============insert Test Product==============");
+            Product insertProduct = new Product();
+            insertProduct.setEnName("Test Product");
+            insertProduct.setZhName("測試商品");
+            insertProduct.setPrice(9999.55);
+            insertProduct.setReleaseDate(Timestamp.from(Instant.now()));
+            session.persist(insertProduct);
+            Query<Product> selectQuery = session.createNativeQuery("select * from product where en_name = ?1", Product.class);
+            selectQuery.setParameter(1, "Test Product");
+            insertProduct = selectQuery.list().get(0);
+            LOGGER.log(Level.INFO, "(InsertProduct) Id: {0}, EnName: {1}, ZhName: {2}, Price: {3}, ReleaseDate: {4}", new Object[]{insertProduct.getId(), insertProduct.getEnName(), insertProduct.getZhName(), insertProduct.getPrice(), sdf.format(insertProduct.getReleaseDate())});
+            Thread.sleep(50);
+
+            /* update */
+            LOGGER.info("==============update Test Product==============");
+            LOGGER.log(Level.INFO, "(Before insertProduct) ZhName: {0}, Price: {1}, EditDate: {2}", new Object[]{insertProduct.getZhName(), insertProduct.getPrice(), insertProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate())});
+            insertProduct.setPrice(4990.72);
+            insertProduct.setZhName("測試商品更新");
+            insertProduct.setEditDate(Timestamp.valueOf(LocalDateTime.now()));
+            session.merge(insertProduct);
+            Product updateProduct = session.get(Product.class, insertProduct.getId());
+            LOGGER.log(Level.INFO, "(After insertProduct) ZhName: {0}, Price: {1}, EditDate: {2}", new Object[]{updateProduct.getZhName(), updateProduct.getPrice(), updateProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate())});
+            Thread.sleep(50);
+
+            /*
+             * delete
+             */
+            LOGGER.info("==============delete Test Product==============");
+            Query<Product> deleteQuery = session.createNativeQuery("select * from product where id = ?1", Product.class);
+            deleteQuery.setParameter(1, insertProduct.getId());
+            List<Product> deleteProducts = deleteQuery.list();
+            for (Product p : deleteProducts) {
+                LOGGER.log(Level.INFO, "(DeleteProduct) Id: {0}, EnName: {1}, ZhName: {2}, Price: {3}, ReleaseDate: {4}", new Object[]{p.getId(), p.getEnName(), p.getZhName(), p.getPrice(), sdf.format(p.getReleaseDate())});
+                session.remove(p);
+            }
+            Thread.sleep(50);
+
+            LOGGER.info("==============commit and close session==============");
+
+            // 最後不執行commit則會rollback
+            transaction.commit();
+
+            // commit不執行就關閉會發生connection leak detected
+            HibernateConfig.shutdown();
         }
-        Thread.sleep(50);
-
-        /* select random Product */
-        int productId = ThreadLocalRandom.current().nextInt(1, products.size() + 1);
-        System.err.printf("==============select %d Product==============\n", productId);
-        Product selectProduct = session.get(Product.class, productId);
-        System.out.printf("(SelectProduct) Id: %d, EnName: %s, ZhName: %s, Price: %f, ReleaseDate: %s\n", selectProduct.getId(), selectProduct.getEnName(), selectProduct.getZhName(), selectProduct.getPrice(), sdf.format(selectProduct.getReleaseDate()));
-        Thread.sleep(50);
-
-        /* insert */
-        System.err.println("==============insert Test Product==============");
-        Product insertProduct = new Product();
-        insertProduct.setEnName("Test Product");
-        insertProduct.setZhName("測試商品");
-        insertProduct.setPrice(9999.55);
-        insertProduct.setReleaseDate(Timestamp.from(Instant.now()));
-        session.save(insertProduct);
-        Query selectQuery = session.createQuery("from Product where enName = ?1");
-        selectQuery.setParameter(1, "Test Product");
-        insertProduct = (Product) selectQuery.list().get(0);
-        System.out.printf("(InsertProduct) Id: %d, EnName: %s, ZhName: %s, Price: %f, ReleaseDate: %s\n", insertProduct.getId(), insertProduct.getEnName(), insertProduct.getZhName(), insertProduct.getPrice(), sdf.format(insertProduct.getReleaseDate()));
-        Thread.sleep(50);
-
-        /* update */
-        System.err.println("==============update Test Product==============");
-        System.out.printf("(Before insertProduct) ZhName: %s, Price: %f, EditDate: %s\n", insertProduct.getZhName(), insertProduct.getPrice(), (insertProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate())));
-        insertProduct.setPrice(4990.72);
-        insertProduct.setZhName("測試商品更新");
-        insertProduct.setEditDate(Timestamp.valueOf(LocalDateTime.now()));
-        session.update(insertProduct);
-        Product updateProduct = session.get(Product.class, insertProduct.getId());
-        System.out.printf("(After insertProduct) ZhName: %s, Price: %f, EditDate: %s\n", updateProduct.getZhName(), updateProduct.getPrice(), (updateProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate())));
-        Thread.sleep(50);
-
-        /*
-         * delete
-         */
-        System.err.println("==============delete Test Product==============");
-        Query deleteQuery = session.createQuery("from Product where id = ?1");
-        deleteQuery.setParameter(1, insertProduct.getId());
-        List<Product> deleteProducts = (List<Product>) deleteQuery.list();
-        for (Product p : deleteProducts) {
-            System.out.printf("(DeleteProduct) Id: %d, EnName: %s, ZhName: %s, Price: %f, ReleaseDate: %s\n", p.getId(), p.getEnName(), p.getZhName(), p.getPrice(), sdf.format(p.getReleaseDate()));
-            session.delete(p);
-        }
-        Thread.sleep(50);
-
-        System.err.println("==============commit and close session==============");
-
-        // 最後不執行commit則會rollback
-        transaction.commit();
-
-        // commit不執行就關閉會發生connection leak detected
-        HibernateConfig.shutdown();
 
     }
 

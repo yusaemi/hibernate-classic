@@ -11,23 +11,19 @@ import org.hibernate.cfg.Configuration;
  *
  **/
 // Hibernate 建立資料庫連線
-public class HibernateConfig {
+public final class HibernateConfig {
 
-    private static final SessionFactory sessionFactory = buildSessionFactory();
+    private HibernateConfig() {}
+
+    private static final SessionFactory SESSION_FACTORY = buildSessionFactory();
 
     private static SessionFactory buildSessionFactory() {
-        try {
-            // 從hibernate.cfg.xml建立SessionFactory
-            return new Configuration().configure().buildSessionFactory();
-        } catch (Throwable ex) {
-            // 獲取異常紀錄
-            System.err.println("Initial SessionFactory creation failed." + ex);
-            throw new ExceptionInInitializerError(ex);
-        }
+        // 從hibernate.cfg.xml建立SessionFactory
+        return new Configuration().configure().buildSessionFactory();
     }
 
     public static SessionFactory getSessionFactory() {
-        return sessionFactory;
+        return SESSION_FACTORY;
     }
 
     public static void shutdown() {
