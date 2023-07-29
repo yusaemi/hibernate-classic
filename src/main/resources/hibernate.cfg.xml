@@ -7,12 +7,12 @@
 <hibernate-configuration>
     <session-factory>
         <!--使用Database相關設定 -->
-        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
-        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
+        <property name="hibernate.connection.driver_class">org.h2.Driver</property>
         <!--連線資料 (url)、帳號(username)及密碼(password) -->
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/master?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=GMT%2B8</property>
-        <property name="hibernate.connection.username">root</property>
-        <property name="hibernate.connection.password">root</property>
+        <property name="hibernate.connection.url">jdbc:h2:mem:localdb;MODE=MYSQL</property>
+        <property name="hibernate.connection.username">sa</property>
+        <property name="hibernate.connection.password">sa</property>
         <!-- hibernate其他設定 -->
         <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
         <property name="connection_pool_size">1</property>
@@ -24,10 +24,12 @@
         create-drop: 新增所有對應的table，程式關閉前刪除所有對應的table
         沒有需要配置就設定為none
         -->
-        <property name="hbm2ddl.auto">none</property>
+        <property name="hbm2ddl.auto">create-drop</property>
         <!-- 是否顯示執行的sql -->
         <property name="show_sql">true</property>
+        <!-- db資料初始化 -->
+        <property name="hbm2ddl.import_files">/db/product_data.sql</property>
         <!-- 對應Table設定 -->
-        <mapping resource="product.hbm.xml"></mapping>
+        <mapping resource="product.hbm.xml" />
     </session-factory>
 </hibernate-configuration>
