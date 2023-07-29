@@ -4,7 +4,7 @@
 
 <!-- table 對應檔，設定table 名稱及欄位設定。 -->
 <hibernate-mapping>
-    <class name="idv.module.entity.Product" table="product" catalog="master">
+    <class name="idv.module.entity.Product" table="product">
         <!-- product裡面，id對應到model的id屬性 -->
         <id name="id" type="java.lang.Integer">
             <column name="id"/>
