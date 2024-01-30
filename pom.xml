@@ -11,7 +11,8 @@
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hibernate.version>6.4.0.Final</hibernate.version>
+        <hibernate.version>6.4.2.Final</hibernate.version>
+        <activation-api.version>2.1.2</activation-api.version>
         <h2.version>2.2.224</h2.version>
         <lombok.version>1.18.30</lombok.version>
     </properties>
@@ -33,7 +34,7 @@
         <dependency>
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
-            <version>2.1.2</version>
+            <version>${activation-api.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
         <dependency>
