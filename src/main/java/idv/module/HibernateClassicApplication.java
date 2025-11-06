@@ -26,7 +26,7 @@ public class HibernateClassicApplication {
 
     private static final Logger LOGGER = Logger.getAnonymousLogger();
 
-    public static void main(String[] args) throws InterruptedException {
+    void main() throws InterruptedException {
 
         // 建立sessionFactory
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
@@ -47,7 +47,7 @@ public class HibernateClassicApplication {
             /* select random Product */
             int productId = ThreadLocalRandom.current().nextInt(1, products.size() + 1);
             LOGGER.log(Level.INFO, "==============select {0} Product==============", productId);
-            Product selectProduct = session.get(Product.class, productId);
+            Product selectProduct = session.find(Product.class, productId);
             LOGGER.log(Level.INFO, "(SelectProduct) Id: {0}, EnName: {1}, ZhName: {2}, Price: {3}, ReleaseDate: {4}", new Object[]{selectProduct.getId(), selectProduct.getEnName(), selectProduct.getZhName(), selectProduct.getPrice(), sdf.format(selectProduct.getReleaseDate())});
             Thread.sleep(50);
 
@@ -61,7 +61,7 @@ public class HibernateClassicApplication {
             session.persist(insertProduct);
             Query<Product> selectQuery = session.createNativeQuery("select * from product where en_name = ?1", Product.class);
             selectQuery.setParameter(1, "Test Product");
-            insertProduct = selectQuery.list().get(0);
+            insertProduct = selectQuery.list().getFirst();
             LOGGER.log(Level.INFO, "(InsertProduct) Id: {0}, EnName: {1}, ZhName: {2}, Price: {3}, ReleaseDate: {4}", new Object[]{insertProduct.getId(), insertProduct.getEnName(), insertProduct.getZhName(), insertProduct.getPrice(), sdf.format(insertProduct.getReleaseDate())});
             Thread.sleep(50);
 
@@ -72,7 +72,7 @@ public class HibernateClassicApplication {
             insertProduct.setZhName("測試商品更新");
             insertProduct.setEditDate(Timestamp.valueOf(LocalDateTime.now()));
             session.merge(insertProduct);
-            Product updateProduct = session.get(Product.class, insertProduct.getId());
+            Product updateProduct = session.find(Product.class, insertProduct.getId());
             LOGGER.log(Level.INFO, "(After insertProduct) ZhName: {0}, Price: {1}, EditDate: {2}", new Object[]{updateProduct.getZhName(), updateProduct.getPrice(), updateProduct.getEditDate() == null ? "" : sdf.format(insertProduct.getEditDate())});
             Thread.sleep(50);
 
