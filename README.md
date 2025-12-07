@@ -1,7 +1,7 @@
 # Hibernate建立Database連線
 
 ## 工具列表
-- `JDK21`
+- `JDK25`
 - ~~`MySQL`~~
 - `h2`
 - `lombok`
