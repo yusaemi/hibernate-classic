@@ -49,6 +49,14 @@
                     <source>${java.version}</source> <!-- 1.8,1.9,1.10,11,12,13 -->
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <!-- JDK 23+ 預設不再自動執行 annotation processor，需明確指定 Lombok -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>
